@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gerenciador de Processos - CECOF</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<div>
+  <img src="logo_fortaleza.png" alt="logo" class="logo_prefeitura">
+</div>
+
+<body>
+
+  
+  <!-- Tela de Boas-vindas -->
+   
+  <div id="loginScreen" class="container-login">
+    <h2>Login</h2>
+    <div class="form-group">
+      <input type="text" id="loginUsuario" placeholder="Usuário" />
+    </div>
+    <div class="form-group">
+      <input type="password" id="loginSenha" placeholder="Senha" />
+    </div>
+    <button onclick="realizarLogin()">Entrar</button>
+    <div id="loginErro" style="color: red; margin-top: 10px;"></div>
+    <button onclick="mostrarCadastro()">Criar Conta</button>
+  </div>
+  
+
+      <!-- Cadastros -->
+
+    <div id="cadastroScreen" class="container-login hidden">
+      <h2>Cadastro</h2>
+      <div class="form-group">
+        <input type="text" id="novoUsuario" placeholder="Novo usuário" />
+      </div>
+      <div class="form-group">
+        <input type="password" id="novaSenha" placeholder="Nova senha" />
+      </div>
+      <button onclick="enviarCadastro()">Enviar Cadastro</button>
+      <button onclick="voltarLogin()">Voltar</button>
+      <div id="cadastroMensagem" style="margin-top: 10px;"></div>
+    </div>
+
+  <div id="welcomeScreen" class="container">
+
+    <div class="welcome-card">
+      <h1 class="welcome-title">Bem-vindo ao Gerenciador de Processos - COGESP</h1>
+      <button class="welcome-btn" onclick="irParaTelaPrincipal()">Entrar</button>
+      </div>
+    </div>
+
+  <!-- Tela Principal -->
+  <div id="mainScreen" class="container hidden">
+    <h1>Controle de Processos</h1>
+    <div class="rola">
+      <button onclick="voltarParaInicio()">Início</button>
+    </div>
+
+    <!-- NOVO LAYOUT DE ABAS COMO CARTÕES -->
+    <div class="aba-container">
+      <div class="aba-card" onclick="mostrarAba('adicionar')">
+        <div class="aba-header">Cadastro de Processos</div>
+        <div class="aba-body">
+          <p>Adicione novos processos manualmente ou via planilha.</p>
+          <div class="aba-info">
+            <span>🗂️ CECOF</span>
+            <span>Cadastro</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="aba-card" onclick="mostrarAba('listar')">
+        <div class="aba-header">Consulta de Processos</div>
+        <div class="aba-body">
+          <p>Pesquise e visualize todos os processos cadastrados.</p>
+          <div class="aba-info">
+            <span>🔍 CECOF</span>
+            <span>Consulta</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="aba-card" onclick="mostrarAba('estatisticas')">
+        <div class="aba-header">Dados Analíticos</div>
+        <div class="aba-body">
+          <p>Veja gráficos com informações sobre os processos.</p>
+          <div class="aba-info">
+            <span>📊 CECOF</span>
+            <span>Estatísticas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ----------------Abas---------------------- -->
+
+
+<!--aba de adicionar processos-->
+
+
+    <div id="adicionar" class="aba active">
+      <div class="form-group">
+        <label for="descricao">Preencha com o número do processo e clique em "Adicionar processo".</label>
+        <input type="text" id="descricao" placeholder="N° do processo" />
+        <div class="error" id="descricaoError"></div>
+      </div>
+
+    <div class="form-group">
+      <label for="assunto">Assunto (Marcador):</label>
+    <select id="assunto">
+      <option value="Financeiro">Financeiro</option>
+      <option value="Jurídico">Jurídico</option>
+      <option value="Administrativo">Administrativo</option>
+      <option value="Tecnologia">Tecnologia</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="prioridade">Prioridade:</label>
+    <select id="prioridade">
+      <option value="Baixa">Baixa</option>
+      <option value="Normal" selected>Normal</option>
+      <option value="Alta">Alta</option>
+    </select>
+  </div>
+
+    <div class="form-group">
+      <button onclick="adicionarProcesso()">Adicionar Processo</button>
+        <label for="fileInput" class="file-label">📂 Importar Planilha</label>
+      <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;">
+    </div>
+
+    <div>
+      <label for="descricao">
+        <h6>❓ Para importar uma planilha, ela deve conter a coluna "PROCESSO". Se necessário, poderá conter também as colunas "ASSUNTO", e "PRIORIDADE".</h6>
+      </label>
+    </div>
+    </div>
+
+
+
+    <!--aba de lista de processos-->
+    
+    <div id="listar" class="aba hidden">
+      <div class="form-group">
+        <label for="search">Pesquisar pelo número do processo</label>
+        <input type="text" id="search" onkeyup="pesquisarProcesso()" placeholder="Digite o número do processo">
+      </div>
+      
+      <div class="kanban-board" data-status="Entrada" id="kanbanBoard">
+        <div class="kanban-column" data-status="Entrada" id="coluna-entrada">
+          <h3>Entrada</h3>
+        </div>
+        <div class="kanban-column" data-status="Em andamento" id="coluna-andamento">
+          <h3>Em Andamento</h3>
+        </div>
+        <div class="kanban-column" data-status="Impedimento" id="coluna-impedimento">
+          <h3>Impedimento</h3>
+        </div>
+        <div class="kanban-column" data-status="Concluído" id="coluna-concluido">
+          <h3>Concluído</h3>
+        </div>
+      </div>
+
+
+
+<!-- ABA DE ESTATÍSTICAS -->
+
+    <div id="estatisticas" class="aba hidden">
+      <h2>Estatísticas dos Processos</h2>
+      <canvas id="graficoProcessos"></canvas>
+    </div>
+
+
+    <!------------------------------------------------------------>
+
+    <!-- Pop-up de Confirmação -->
+    <div id="confirmationPopup" class="confirmation-popup">
+      <div class="confirmation-box">
+        <h3>Você tem certeza que deseja excluir este processo?</h3>
+        <button onclick="confirmarExclusao()">Sim, excluir</button>
+        <button onclick="fecharPopup()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+
+<div id="processoDetalhes" class="detalhes-processo hidden">
+  <div class="detalhes-box">
+    <span class="fechar" onclick="fecharDetalhes()">✖</span>
+
+    <h2 style="color:#009688; margin-top: 10px;">🔍 Detalhes do Processo</h2>
+    <hr>
+
+    <p><strong>📁 Nº do Processo:</strong> <span id="detalhesNumero"></span></p>
+    <p><strong>📌 Status:</strong> <span id="detalhesStatus"></span></p>
+    <p><strong>📅 Data de Inclusão:</strong> <span id="detalhesData"></span></p>
+
+    <div class="form-group">
+      <label for="inputAssunto"><strong>✏️ Assunto:</strong></label>
+      <input type="text" id="inputAssunto" placeholder="Digite o assunto do processo">
+      <button onclick="salvarAssunto()">Salvar Assunto</button>
+    </div>
+
+    <div class="comentarios">
+      <h3>💬 Comentários</h3>
+      <div id="comentariosLista" style="margin-top:10px;"></div>
+      <textarea id="novoComentario" placeholder="Adicionar um comentário..."></textarea>
+      <button onclick="adicionarComentario()">Adicionar Comentário</button>
+    </div>
+
+    <button onclick="excluirProcesso()" class="botao-excluir">🗑️ Excluir Processo</button>
+  </div>
+</div>
+
+
+
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</body>
+</html>
